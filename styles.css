@@ -16,7 +16,7 @@
  background-image: url("assets/imgs/KM\ picture.jpeg");
     background-size: cover;
     background-position: center;
-    background-attachment: scroll;
+    background-attachment: fixed;
     background-repeat: no-repeat;
     background-blend-mode: multiply;
     opacity: 100%;
@@ -953,6 +953,7 @@ body {
     background-size: cover !important;
     background-position: center center !important;
     background-repeat: no-repeat !important;
+    background-attachment: scroll;
 }
 
 header, .aboutheader, .contactheader, .booking-navigation, .admin-header {
