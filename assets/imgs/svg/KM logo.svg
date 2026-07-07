@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 120" width="180" height="72">
+  <!-- محاذاة العناصر تبدأ من اليسار بفضل text-anchor="start" -->
+  <g transform="translate(10, 60)" text-anchor="start">
+    
+    <!-- المونوغرام المتداخل KM باللون الأسود وبدون خلفية -->
+    <g font-family="Playfair Display, Georgia, 'Times New Roman', serif" font-weight="bold" fill="#f9f8f8">
+      <!-- حرف K في البداية من اليسار -->
+      <text x="0" y="0" font-size="90">K</text>
+      <!-- حرف M متداخل ومزاح قليلاً لليمين وللأسفل لضمان وضوحه كاملاً -->
+      <text x="55" y="22" font-size="90">M</text>
+    </g>
+    
+    <!-- النص السفلي kasfat mussar يبدأ من اليسار ومتناسق مع الأحرف -->
+    <text x="2" y="48" 
+          font-family="'Playfair Display', 'Times New Roman', serif" 
+          font-style="italic" 
+          font-size="20" 
+          fill="#f9f8f8" 
+          letter-spacing="0.5">
+      kasfat mussar
+    </text>
+  </g>
+</svg>
