@@ -941,6 +941,19 @@ body.admin-page-body {
 
 @media (max-width: 1023px) {
 
+/* إجبار الخلفية على الامتداد الكامل وتغطية العناصر المقلوبة في الهاتف */
+html, body {
+    height: auto !important;
+    min-height: 100vh !important;
+    min-height: -webkit-fill-available !important;
+}
+
+body {
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+}
+
 header, .aboutheader, .contactheader, .booking-navigation, .admin-header {
     margin-left: 1rem;
     margin-right: 1rem;
@@ -975,6 +988,5 @@ header, .aboutheader, .contactheader, .booking-navigation, .admin-header {
 .light {
     width: 60px;
 }
-
 
 }
