@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - حَجُوزَاتْ كَسْفَةُ مِصَرّ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="admin-page-body">
+
+<!-- الهيدر الجديد الخاص بلوحة التحكم -->
+<header class="admin-header">
+        <nav class="adminlogo">
+            <img src="assets/imgs/svg/KM logo.svg" alt="Kasfat mussar logo">
+        </nav>
+
+        <nav class="admin-navigation">
+            <ul>
+                <li><a href="index.html">الرَّئِيسِيَّة</a></li>
+                <li><a href="about.html">مَنْ نَحْنُ</a></li>
+                <li><a href="contact.html">تَوَاصَلْ مَعَنَا</a></li>
+            </ul>
+        </nav>
+
+</header>
+<hr class="line-under-header">
+
+<div class="admin-container">
+    <h1 class="admin-main-title"><i class="fas fa-calendar-check"></i> جَدْوَلُ حَجُوزَاتِ كَسْفَةُ مِصَرّ</h1>
+    
+    <div class="admin-table-responsive">
+        <table id="adminBookingsTable" class="admin-table">
+            <thead>
+                <tr>
+                    <th class="admin-th">الِاسْمُ الْكَامِلْ</th>
+                    <th class="admin-th">رَقْمُ الْهَاتِفْ</th>
+                    <th class="admin-th">نَوْعُ الْخِدْمَةِ</th>
+                    <th class="admin-th">التَّارِيخْ</th>
+                    <th class="admin-th">الْوَقْتْ</th>
+                    <th class="admin-th">إِجْرَاءْ</th>
+                </tr>
+            </thead>
+            <tbody id="adminBookingsBody">
+            </tbody>
+        </table>
+        <div id="adminNoBookingsMessage" class="admin-no-bookings" style="display: none;">
+            <i class="fas fa-box-open"></i> لَا تُوجَدْ حَجُوزَاتٌ مُسَجَّلَةٌ حَالِيّاً.
+        </div>
+    </div>
+
+    <button class="admin-clear-all-btn" onclick="clearAllBookings()"><i class="fas fa-trash-alt"></i> مَسْحُ جَمِيعِ الْحَجُوزَاتْ</button>
+</div>
+
+<script>
+// دالة التحقق من الرمز السري فور فتح الصفحة
+function checkAdminAccess() {
+    // يمكنك تغيير الرقم السري (1234) إلى أي رمز تفضله لبراندك
+    const secretCode = "kasfat mussar 2006"; 
+    
+    const userEntry = prompt("🔒 الرَّجَاءُ إِدْخَالُ رَمْزِ الدُّخُولِ لِلَوْحَةِ التَّحَكُّم:");
+
+    if (userEntry === secretCode) {
+        // إذا كان الرمز صحيحاً، يتم تحميل الحجوزات كالمعتاد
+        loadBookings();
+    } else {
+        // إذا كان الرمز خاطئاً، يظهر تنبيه ويتم طرده للصفحة الرئيسية
+        alert("❌ رَمْزُ الدُّخُولِ خَاطِئ! لَا تَمْلِكُ صَلَاحِيَّةَ الدُّخُول.");
+        window.location.href = "index.html"; 
+    }
+}
+
+function loadBookings() {
+    const bookingsBody = document.getElementById('adminBookingsBody');
+    const noBookingsMessage = document.getElementById('adminNoBookingsMessage');
+    const bookingsTable = document.getElementById('adminBookingsTable');
+    
+    let bookings = JSON.parse(localStorage.getItem('kasfatBookings')) || [];
+    
+    bookings.sort((a, b) => new Date(a.date + ' ' + a.timeRaw) - new Date(b.date + ' ' + b.timeRaw));
+
+    bookingsBody.innerHTML = '';
+
+    if (bookings.length === 0) {
+        bookingsTable.style.display = 'none';
+        noBookingsMessage.style.display = 'block';
+        return;
+    }
+
+    bookingsTable.style.display = 'table';
+    noBookingsMessage.style.display = 'none';
+
+    bookings.forEach((booking, index) => {
+        const row = document.createElement('tr');
+        row.className = "admin-tr";
+        row.innerHTML = `
+            <td class="admin-td"><strong>${booking.name}</strong></td>
+            <td class="admin-td"><a href="https://wa.me/${booking.phone}" target="_blank" class="admin-whatsapp-link"><i class="fab fa-whatsapp"></i> ${booking.phone}</a></td>
+            <td class="admin-td">${booking.service}</td>
+            <td class="admin-td">${booking.date}</td>
+            <td class="admin-td"><span class="admin-time-ltr">${booking.time}</span></td>
+            <td class="admin-td"><button class="admin-btn-delete" onclick="deleteBooking(${index})">حذف</button></td>
+        `;
+        bookingsBody.appendChild(row);
+    });
+}
+
+function deleteBooking(index) {
+    if (confirm("هل أنت متأكد من حذف هذا الحجز؟")) {
+        let bookings = JSON.parse(localStorage.getItem('kasfatBookings')) || [];
+        bookings.splice(index, 1);
+        localStorage.setItem('kasfatBookings', JSON.stringify(bookings));
+        loadBookings();
+    }
+}
+
+function clearAllBookings() {
+    if (confirm("⚠️ هل أنت متأكد تماماً من مسح كافة جدول الحجوزات؟ لا يمكن التراجع عن هذا الإجراء.")) {
+        localStorage.removeItem('kasfatBookings');
+        loadBookings();
+    }
+}
+
+// تعديل التشغيل التلقائي ليفحص الرمز أولاً بدلاً من تحميل البيانات فوراً
+window.onload = checkAdminAccess;
+</script>
+
+</body>
+</html>

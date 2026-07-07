@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حَجْزُ مَوْعِدْ - كَسْفَةُ مِصَرّ</title>
+    <!-- مكتبة الأيقونات وروابط الخطوط -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="booking-body">
+
+
+    <header class="navbar">
+        <nav class="logo">
+            <img src="assets/imgs/svg/KM logo.svg" alt="Kasfat mussar logo">
+        </nav>
+        <nav class="booking-navigation">
+            <ul>
+                <li><a href="index.html">الرَّئِيسِيَّة</a></li>
+                <li><a href="about.html">مَنْ نَحْنُ</a></li>
+                <li><a href="contact.html">تَوَاصَلْ مَعَنَا</a></li>
+            </ul>
+        </nav>
+    </header>
+    <hr class="line-under-header">
+
+
+    <section class="booking-section">
+        <div class="booking-container">
+            <h1 class="booking-title">حَجْزُ مَوْعِدْ لِتَمْصِيرِ الْمِصَرّ</h1>
+            <p class="booking-subtitle">الرَّجَاءُ مِلْءُ الْبَيَانَاتِ التَّالِيَةِ لِتَأْكِيدِ حَجْزِكَ</p>
+
+            <form class="booking-form" id="bookingForm">
+                <!-- الاسم -->
+                <div class="input-group">
+                    <label for="name">الِاسْمُ الْكَامِلْ:</label>
+                    <input type="text" id="name" required placeholder="أدخل اسمك الكريم">
+                </div>
+
+                <!-- رقم الهاتف -->
+                <div class="input-group">
+                    <label for="phone">رَقْمُ الْهَاتِفْ:</label>
+                    <input type="tel" id="phone" required placeholder="968 XXXXXXXX">
+                </div>
+
+                <!-- نوع الخدمة -->
+                <div class="input-group">
+                    <label for="service">نَوْعُ الْخِدْمَةِ:</label>
+                    <select id="service" required>
+                        <option value="" disabled selected>اختر الخدمة المطلوبة</option>
+                        <option value="mussar">تَمْصِيرُ المِصَرّ العُمَانِي</option>
+                    </select>
+                </div>
+
+                
+                <div class="row-inputs">
+                    <div class="input-group">
+                        <label for="date">التَّارِيخْ:</label>
+                        <input type="text" id="date" required placeholder="الْيَوْمْ / الشَّهْرْ / السَّنَة" onfocus="(this.type='date')" onblur="(this.value ? this.type='date' : this.type='text')">
+                    </div>
+                    
+
+                    <div class="input-group">
+                        <label for="time">الْوَقْتْ:</label>
+                      <select id="time" required>
+                        <option value="" disabled selected>اختر الوقت</option>
+
+                        <option value="10:00">10:00 ص</option>
+                        <option value="10:30">10:30 ص</option>
+                        <option value="11:00">11:00 ص</option>
+                        <option value="11:30">11:30 ص</option>
+                        <option value="12:00">12:00 م</option>
+                        <option value="12:30">12:30 م</option>
+                        <option value="13:00">01:00 م</option>
+                        <option value="13:30">01:30 م</option>
+                        <option value="14:00">02:00 م</option>
+                        <option value="14:30">02:30 م</option>
+                        <option value="15:00">03:00 م</option>
+                        <option value="15:30">03:30 م</option>
+                        <option value="16:00">04:00 م</option>
+                        <option value="16:30">04:30 م</option>
+                        <option value="17:00">05:00 م</option>
+                        <option value="17:30">05:30 م</option>
+                        <option value="18:00">06:00 م</option>
+                        <option value="18:30">06:30 م</option>
+                        <option value="19:00">07:00 م</option>
+                        <option value="19:30">07:30 م</option>
+                        <option value="20:00">08:00 م</option>
+                        <option value="20:30">08:30 م</option>
+                        <option value="21:00">09:00 م</option>
+                        <option value="21:30">09:30 م</option>
+                        <option value="22:00">10:00 م</option>
+                    </select>
+                    </div>
+
+                </div>
+
+                
+                <button type="submit" class="submit-booking-btn">
+                    <span>تَأْكِيدُ الْحَجْزِ</span>
+                    <i class="fas fa-calendar-check"></i>
+                </button>
+            </form>
+        </div>
+    </section>
+
+
+
+   <script>
+      const availableTimes = [
+      { value: "10:00", text: "10:00 ص" }, { value: "10:30", text: "10:30 ص" },
+      { value: "11:00", text: "11:00 ص" }, { value: "11:30", text: "11:30 ص" },
+      { value: "12:00", text: "12:00 م" }, { value: "12:30", text: "12:30 م" },
+      { value: "13:00", text: "01:00 م" }, { value: "13:30", text: "01:30 م" },
+      { value: "14:00", text: "02:00 م" }, { value: "14:30", text: "02:30 م" },
+      { value: "15:00", text: "03:00 م" }, { value: "15:30", text: "03:30 م" },
+      { value: "16:00", text: "04:00 م" }, { value: "16:30", text: "04:30 م" },
+      { value: "17:00", text: "05:00 م" }, { value: "17:30", text: "05:30 م" },
+      { value: "18:00", text: "06:00 م" }, { value: "18:30", text: "06:30 م" },
+      { value: "19:00", text: "07:00 م" }, { value: "19:30", text: "07:30 م" },
+      { value: "20:00", text: "08:00 م" }, { value: "20:30", text: "08:30 م" },
+      { value: "21:00", text: "09:00 م" }, { value: "21:30", text: "09:30 م" },
+      { value: "22:00", text: "10:00 م" }
+      ];
+
+      const dateInput = document.getElementById('date');
+      const timeSelect = document.getElementById('time');
+
+      function updateAvailableTimes() {
+      const selectedDate = dateInput.value;
+      if (!selectedDate) return;
+
+      let bookings = JSON.parse(localStorage.getItem('kasfatBookings')) || [];
+
+      const bookedTimes = bookings
+        .filter(b => b.date === selectedDate)
+        .map(b => b.timeRaw);
+
+      timeSelect.innerHTML = '<option value="" disabled selected>اختر الوقت</option>';
+    
+      availableTimes.forEach(time => {
+        if (!bookedTimes.includes(time.value)) {
+            const option = document.createElement('option');
+            option.value = time.value;
+            option.textContent = time.text;
+            timeSelect.appendChild(option);
+     }
+        });
+      }
+
+      dateInput.addEventListener('change', updateAvailableTimes);
+
+      document.getElementById('bookingForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+  
+      const name = document.getElementById('name').value;
+      const phone = document.getElementById('phone').value;
+      const serviceSelect = document.getElementById('service');
+      const serviceText = serviceSelect.options[serviceSelect.selectedIndex].text;
+      const date = dateInput.value;
+      const timeText = timeSelect.options[timeSelect.selectedIndex].text;
+      const timeRaw = timeSelect.value;
+
+      const newBooking = {
+        name: name,
+        phone: phone,
+        service: serviceText,
+        date: date,
+        time: timeText,
+        timeRaw: timeRaw,
+        timestamp: new Date().getTime()
+      };
+
+      let bookings = JSON.parse(localStorage.getItem('kasfatBookings')) || [];
+      bookings.push(newBooking);
+      localStorage.setItem('kasfatBookings', JSON.stringify(bookings));
+
+      alert("✨ تَمَّ الْحَجْزُ بِنَجَاحْ! سَنَتَوَاصَلُ مَعَكَ قَرِيباً لِتَأْكِيدِ الْمَوْعِدْ. ✨");
+    
+      this.reset();
+      updateAvailableTimes();
+      });
+    </script>
+
+
+
+
+
+</body>
+</html>
