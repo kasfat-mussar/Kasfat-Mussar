@@ -107,82 +107,115 @@
 
 
 
-   <script>
+   <script type="module">
+      // 1) استيراد مكتبات Firebase السحابية الرسمية للمتصفح
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+      // 2) إعدادات مشروع كسفة مصر الخاصة بك
+      const firebaseConfig = {
+        apiKey: "AIzaSyDi0BjsLZVNyVVGzFEZX69a45Ig_U0Xd34",
+        authDomain: "kasfat-mussar.firebaseapp.com",
+        databaseURL: "https://kasfat-mussar-default-rtdb.firebaseio.com",
+        projectId: "kasfat-mussar",
+        storageBucket: "kasfat-mussar.firebasestorage.app",
+        messagingSenderId: "890814109070",
+        appId: "1:890814109070:web:b97fa2846b286fb282c0df",
+        measurementId: "G-Q2HL4YY7VH"
+      };
+
+      // تشغيل وتفعيل السيرفر
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+
       const availableTimes = [
-      { value: "10:00", text: "10:00 ص" }, { value: "10:30", text: "10:30 ص" },
-      { value: "11:00", text: "11:00 ص" }, { value: "11:30", text: "11:30 ص" },
-      { value: "12:00", text: "12:00 م" }, { value: "12:30", text: "12:30 م" },
-      { value: "13:00", text: "01:00 م" }, { value: "13:30", text: "01:30 م" },
-      { value: "14:00", text: "02:00 م" }, { value: "14:30", text: "02:30 م" },
-      { value: "15:00", text: "03:00 م" }, { value: "15:30", text: "03:30 م" },
-      { value: "16:00", text: "04:00 م" }, { value: "16:30", text: "04:30 م" },
-      { value: "17:00", text: "05:00 م" }, { value: "17:30", text: "05:30 م" },
-      { value: "18:00", text: "06:00 م" }, { value: "18:30", text: "06:30 م" },
-      { value: "19:00", text: "07:00 م" }, { value: "19:30", text: "07:30 م" },
-      { value: "20:00", text: "08:00 م" }, { value: "20:30", text: "08:30 م" },
-      { value: "21:00", text: "09:00 م" }, { value: "21:30", text: "09:30 م" },
-      { value: "22:00", text: "10:00 م" }
+        { value: "10:00", text: "10:00 ص" }, { value: "10:30", text: "10:30 ص" },
+        { value: "11:00", text: "11:00 ص" }, { value: "11:30", text: "11:30 ص" },
+        { value: "12:00", text: "12:00 م" }, { value: "12:30", text: "12:30 م" },
+        { value: "13:00", text: "01:00 م" }, { value: "13:30", text: "01:30 م" },
+        { value: "14:00", text: "02:00 م" }, { value: "14:30", text: "02:30 م" },
+        { value: "15:00", text: "03:00 م" }, { value: "15:30", text: "03:30 م" },
+        { value: "16:00", text: "04:00 م" }, { value: "16:30", text: "04:30 م" },
+        { value: "17:00", text: "05:00 م" }, { value: "17:30", text: "05:30 م" },
+        { value: "18:00", text: "06:00 م" }, { value: "18:30", text: "06:30 م" },
+        { value: "19:00", text: "07:00 م" }, { value: "19:30", text: "07:30 م" },
+        { value: "20:00", text: "08:00 م" }, { value: "20:30", text: "08:30 م" },
+        { value: "21:00", text: "09:00 م" }, { value: "21:30", text: "09:30 م" },
+        { value: "22:00", text: "10:00 م" }
       ];
 
       const dateInput = document.getElementById('date');
       const timeSelect = document.getElementById('time');
 
+      // 3) جلب الأوقات المحجوزة من السيرفر مباشرة لكل الأجهزة
       function updateAvailableTimes() {
-      const selectedDate = dateInput.value;
-      if (!selectedDate) return;
+        const selectedDate = dateInput.value;
+        if (!selectedDate) return;
 
-      let bookings = JSON.parse(localStorage.getItem('kasfatBookings')) || [];
+        const bookingsRef = ref(database, 'bookings');
+        onValue(bookingsRef, (snapshot) => {
+          const data = snapshot.val();
+          let bookedTimes = [];
 
-      const bookedTimes = bookings
-        .filter(b => b.date === selectedDate)
-        .map(b => b.timeRaw);
+          if (data) {
+            // استخراج الأوقات المحجوزة للتاريخ المختار فقط
+            bookedTimes = Object.values(data)
+              .filter(b => b.date === selectedDate)
+              .map(b => b.timeRaw);
+          }
 
-      timeSelect.innerHTML = '<option value="" disabled selected>اختر الوقت</option>';
-    
-      availableTimes.forEach(time => {
-        if (!bookedTimes.includes(time.value)) {
-            const option = document.createElement('option');
-            option.value = time.value;
-            option.textContent = time.text;
-            timeSelect.appendChild(option);
-     }
-        });
+          // إعادة بناء قائمة الأوقات المتاحة
+          timeSelect.innerHTML = '<option value="" disabled selected>اختر الوقت</option>';
+        
+          availableTimes.forEach(time => {
+            if (!bookedTimes.includes(time.value)) {
+              const option = document.createElement('option');
+              option.value = time.value;
+              option.textContent = time.text;
+              timeSelect.appendChild(option);
+            }
+          });
+        }, { onlyOnce: true }); // نجلبها مرة واحدة عند التغيير لمنع التكرار اللانهائي
       }
 
       dateInput.addEventListener('change', updateAvailableTimes);
 
+      // 4) إرسال الحجز الجديد إلى قاعدة البيانات السحابية المشتركة
       document.getElementById('bookingForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-  
-      const name = document.getElementById('name').value;
-      const phone = document.getElementById('phone').value;
-      const serviceSelect = document.getElementById('service');
-      const serviceText = serviceSelect.options[serviceSelect.selectedIndex].text;
-      const date = dateInput.value;
-      const timeText = timeSelect.options[timeSelect.selectedIndex].text;
-      const timeRaw = timeSelect.value;
-
-      const newBooking = {
-        name: name,
-        phone: phone,
-        service: serviceText,
-        date: date,
-        time: timeText,
-        timeRaw: timeRaw,
-        timestamp: new Date().getTime()
-      };
-
-      let bookings = JSON.parse(localStorage.getItem('kasfatBookings')) || [];
-      bookings.push(newBooking);
-      localStorage.setItem('kasfatBookings', JSON.stringify(bookings));
-
-      alert("✨ تَمَّ الْحَجْزُ بِنَجَاحْ! سَنَتَوَاصَلُ مَعَكَ قَرِيباً لِتَأْكِيدِ الْمَوْعِدْ. ✨");
+        e.preventDefault();
     
-      this.reset();
-      updateAvailableTimes();
-      });
-    </script>
+        const name = document.getElementById('name').value;
+        const phone = document.getElementById('phone').value;
+        const serviceSelect = document.getElementById('service');
+        const serviceText = serviceSelect.options[serviceSelect.selectedIndex].text;
+        const date = dateInput.value;
+        const timeText = timeSelect.options[timeSelect.selectedIndex].text;
+        const timeRaw = timeSelect.value;
 
+        const newBooking = {
+          name: name,
+          phone: phone,
+          service: serviceText,
+          date: date,
+          time: timeText,
+          timeRaw: timeRaw,
+          timestamp: new Date().getTime()
+        };
+
+        // رفع الحجز للسيرفر فوراً
+        const bookingsRef = ref(database, 'bookings');
+        push(bookingsRef, newBooking)
+        .then(() => {
+          alert("✨ تَمَّ الْحَجْزُ بِنَجَاحْ! سَنَتَوَاصَلُ مَعَكَ قَرِيباً لِتَأْكِيدِ الْمَوْعِدْ. ✨");
+          this.reset();
+          updateAvailableTimes();
+        })
+        .catch((error) => {
+          console.error("خطأ في الاتصال بالسيرفر:", error);
+          alert("حدث خطأ أثناء تأكيد الحجز، يرجى المحاولة مجدداً.");
+        });
+      });
+   </script>
 
 
 
