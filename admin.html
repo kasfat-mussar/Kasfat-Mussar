@@ -53,20 +53,37 @@
     <button class="admin-clear-all-btn" onclick="clearAllBookings()"><i class="fas fa-trash-alt"></i> مَسْحُ جَمِيعِ الْحَجُوزَاتْ</button>
 </div>
 
-<script>
+<script type="module">
+// 1) استيراد مكتبات Firebase السحابية الرسمية لصفحة الإدارة
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+// 2) إعدادات مشروع كسفة مصر الخاصة بك
+const firebaseConfig = {
+  apiKey: "AIzaSyDi0BjsLZVNyVVGzFEZX69a45Ig_U0Xd34",
+  authDomain: "kasfat-mussar.firebaseapp.com",
+  databaseURL: "https://kasfat-mussar-default-rtdb.firebaseio.com",
+  projectId: "kasfat-mussar",
+  storageBucket: "kasfat-mussar.firebasestorage.app",
+  messagingSenderId: "890814109070",
+  appId: "1:890814109070:web:b97fa2846b286fb282c0df",
+  measurementId: "G-Q2HL4YY7VH"
+};
+
+// تشغيل وتفعيل السيرفر
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
 // دالة التحقق من الرمز السري فور فتح الصفحة
 function checkAdminAccess() {
-    // يمكنك تغيير الرقم السري (1234) إلى أي رمز تفضله لبراندك
     const secretCode = "kasfat mussar 2006"; 
-    
-    const userEntry = prompt("🔒 الرَّجَاءُ إِدْخَالُ رَمْزِ الدُّخُولِ لِلَوْحَةِ التَّحَكُّم:");
+    const userEntry = prompt("🔒 الرَّجَاءُ إِدْخَالُ رَمْزِ الدُّخُولِ لِلَوْحَةِ التَّحَكُّم:");
 
     if (userEntry === secretCode) {
-        // إذا كان الرمز صحيحاً، يتم تحميل الحجوزات كالمعتاد
+        // إذا كان الرمز صحيحاً، يتم الاستماع للحجوزات من السيرفر مباشرة
         loadBookings();
     } else {
-        // إذا كان الرمز خاطئاً، يظهر تنبيه ويتم طرده للصفحة الرئيسية
-        alert("❌ رَمْزُ الدُّخُولِ خَاطِئ! لَا تَمْلِكُ صَلَاحِيَّةَ الدُّخُول.");
+        alert("❌ رَمْزُ الدُّخُولِ خَاطِئ! لَا تَمْلِكُ صَلَاحِيَّةَ الدُّخُول.");
         window.location.href = "index.html"; 
     }
 }
@@ -76,53 +93,87 @@ function loadBookings() {
     const noBookingsMessage = document.getElementById('adminNoBookingsMessage');
     const bookingsTable = document.getElementById('adminBookingsTable');
     
-    let bookings = JSON.parse(localStorage.getItem('kasfatBookings')) || [];
+    const bookingsRef = ref(database, 'bookings');
     
-    bookings.sort((a, b) => new Date(a.date + ' ' + a.timeRaw) - new Date(b.date + ' ' + b.timeRaw));
+    // الاستماع الفوري والتلقائي لأي حجز يتم رفعه من أي جهاز في العالم
+    onValue(bookingsRef, (snapshot) => {
+        const data = snapshot.val();
+        bookingsBody.innerHTML = '';
 
-    bookingsBody.innerHTML = '';
+        if (!data) {
+            bookingsTable.style.display = 'none';
+            noBookingsMessage.style.display = 'block';
+            return;
+        }
 
-    if (bookings.length === 0) {
-        bookingsTable.style.display = 'none';
-        noBookingsMessage.style.display = 'block';
-        return;
-    }
+        bookingsTable.style.display = 'table';
+        noBookingsMessage.style.display = 'none';
 
-    bookingsTable.style.display = 'table';
-    noBookingsMessage.style.display = 'none';
+        // تحويل البيانات السحابية إلى مصفوفة لترتيبها حسب التاريخ والوقت
+        const bookingsList = Object.keys(data).map(key => ({
+            id: key, // المعرّف الفريد لكل حجز على السيرفر للحذف
+            ...data[key]
+        }));
 
-    bookings.forEach((booking, index) => {
-        const row = document.createElement('tr');
-        row.className = "admin-tr";
-        row.innerHTML = `
-            <td class="admin-td"><strong>${booking.name}</strong></td>
-            <td class="admin-td"><a href="https://wa.me/${booking.phone}" target="_blank" class="admin-whatsapp-link"><i class="fab fa-whatsapp"></i> ${booking.phone}</a></td>
-            <td class="admin-td">${booking.service}</td>
-            <td class="admin-td">${booking.date}</td>
-            <td class="admin-td"><span class="admin-time-ltr">${booking.time}</span></td>
-            <td class="admin-td"><button class="admin-btn-delete" onclick="deleteBooking(${index})">حذف</button></td>
-        `;
-        bookingsBody.appendChild(row);
+        // ترتيب الحجوزات تصاعدياً
+        bookingsList.sort((a, b) => new Date(a.date + ' ' + a.timeRaw) - new Date(b.date + ' ' + b.timeRaw));
+
+        bookingsList.forEach((booking) => {
+            const row = document.createElement('tr');
+            row.className = "admin-tr";
+            row.innerHTML = `
+                <td class="admin-td"><strong>${booking.name}</strong></td>
+                <td class="admin-td"><a href="https://wa.me/${booking.phone}" target="_blank" class="admin-whatsapp-link"><i class="fab fa-whatsapp"></i> ${booking.phone}</a></td>
+                <td class="admin-td">${booking.service}</td>
+                <td class="admin-td">${booking.date}</td>
+                <td class="admin-td"><span class="admin-time-ltr">${booking.time}</span></td>
+                <td class="admin-td"><button class="admin-btn-delete" data-id="${booking.id}">حذف</button></td>
+            `;
+            bookingsBody.appendChild(row);
+        });
+
+        // ربط أزرار الحذف بالدالة السحابية
+        document.querySelectorAll('.admin-btn-delete').forEach(button => {
+            button.addEventListener('click', function() {
+                const bookingId = this.getAttribute('data-id');
+                deleteBooking(bookingId);
+            });
+        });
     });
 }
 
-function deleteBooking(index) {
+// دالة حذف حجز واحد من السيرفر مباشرة
+function deleteBooking(bookingId) {
     if (confirm("هل أنت متأكد من حذف هذا الحجز؟")) {
-        let bookings = JSON.parse(localStorage.getItem('kasfatBookings')) || [];
-        bookings.splice(index, 1);
-        localStorage.setItem('kasfatBookings', JSON.stringify(bookings));
-        loadBookings();
+        const singleBookingRef = ref(database, `bookings/${bookingId}`);
+        remove(singleBookingRef)
+        .then(() => {
+            alert("تم حذف الحجز بنجاح من السيرفر.");
+        })
+        .catch((error) => {
+            console.error("خطأ في الحذف:", error);
+        });
     }
 }
 
+// دالة مسح جميع الحجوزات بالكامل وتفريغ السيرفر
 function clearAllBookings() {
     if (confirm("⚠️ هل أنت متأكد تماماً من مسح كافة جدول الحجوزات؟ لا يمكن التراجع عن هذا الإجراء.")) {
-        localStorage.removeItem('kasfatBookings');
-        loadBookings();
+        const bookingsRef = ref(database, 'bookings');
+        remove(bookingsRef)
+        .then(() => {
+            alert("تم تفريغ كافة الحجوزات بنجاح.");
+        })
+        .catch((error) => {
+            console.error("خطأ في تفريغ البيانات:", error);
+        });
     }
 }
 
-// تعديل التشغيل التلقائي ليفحص الرمز أولاً بدلاً من تحميل البيانات فوراً
+// ربط الزر العام لمسح جميع الحجوزات
+document.querySelector('.admin-clear-all-btn').onclick = clearAllBookings;
+
+// فحص الرمز السري فور تشغيل الصفحة
 window.onload = checkAdminAccess;
 </script>
 
